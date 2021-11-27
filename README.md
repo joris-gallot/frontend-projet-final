@@ -1,5 +1,7 @@
 # Frontend
 
+Auteurs: JORIS GALLOT, ALEXIS COINET, QUENTIN DUCHESNE
+
 ## install
 
 ```bash
