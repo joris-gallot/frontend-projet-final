@@ -1,5 +1,6 @@
 import { createRouter, createWebHashHistory } from "vue-router";
 import store from "./store";
+import History from "./views/History.vue";
 import Home from "./views/Home.vue";
 import Login from "./views/Login.vue";
 import Register from "./views/Register.vue";
@@ -11,6 +12,14 @@ const router = createRouter({
       path: "/",
       name: "Home",
       component: Home,
+      meta: {
+        mustBeLogged: false,
+      },
+    },
+    {
+      path: "/history",
+      name: "History",
+      component: History,
       meta: {
         mustBeLogged: true,
       },
@@ -44,14 +53,14 @@ router.beforeEach((to, from, next) => {
     !store.state.token
   ) {
     next({
-      name: "Login",
+      name: "Home",
     });
   } else if (
     to.matched.some((record) => !record.meta.mustBeLogged) &&
     store.state.token
   ) {
     next({
-      name: "Home",
+      name: "History",
     });
   } else {
     next();

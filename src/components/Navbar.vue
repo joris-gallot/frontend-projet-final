@@ -128,6 +128,7 @@
                     <MenuItem v-slot="{ active }">
                       <button
                         @click="logout"
+                        class="flex w-full"
                         :class="[
                           active ? 'bg-gray-100' : '',
                           'block px-4 py-2 text-sm text-gray-700',
@@ -225,18 +226,13 @@ import {
   MenuItem,
   MenuItems,
 } from "@headlessui/vue";
-import {
-  BellIcon,
-  MenuIcon,
-  XIcon,
-  UserCircleIcon,
-} from "@heroicons/vue/outline";
+import { MenuIcon, UserCircleIcon, XIcon } from "@heroicons/vue/outline";
 import { PlusSmIcon } from "@heroicons/vue/solid";
 import { ref } from "vue";
 import { useRouter } from "vue-router";
 import { useStore } from "vuex";
-import NewGameDialog from "./NewGameDialog.vue";
 import GameDialog from "./GameDialog.vue";
+import NewGameDialog from "./NewGameDialog.vue";
 
 const store = useStore();
 const router = useRouter();
@@ -258,6 +254,6 @@ const refresh = () => {
 
 const logout = () => {
   store.commit("logout");
-  router.push({ name: "Login" });
+  router.push({ name: "Home" });
 };
 </script>

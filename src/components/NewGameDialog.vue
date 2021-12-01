@@ -118,6 +118,16 @@
                     >{{ e }}</span
                   >
                 </div>
+
+                <div>
+                  <SelectDifficulty v-model="difficulty" />
+                  <span
+                    v-for="(e, i) in difficultyErrors"
+                    :key="i"
+                    class="text-red-500 text-sm"
+                    >{{ e }}</span
+                  >
+                </div>
               </form>
             </div>
             <div
@@ -196,17 +206,14 @@
 import {
   Dialog,
   DialogOverlay,
-  DialogTitle,
   TransitionChild,
   TransitionRoot,
 } from "@headlessui/vue";
-import { ExclamationIcon } from "@heroicons/vue/outline";
-import { defineComponent, inject, ref, defineEmits } from "vue";
-import { useStore } from "vuex";
-import { configure, useField, useForm } from "vee-validate";
-import { string, object, number } from "yup";
-import { useRouter } from "vue-router";
+import { useField, useForm } from "vee-validate";
+import { defineEmits, inject } from "vue";
+import { number, object } from "yup";
 import SelectCategory from "./SelectCategory.vue";
+import SelectDifficulty from "./SelectDifficulty.vue";
 
 defineProps({
   open: {
@@ -224,11 +231,12 @@ const emit = defineEmits(["createdGame"]);
 const schema = object({
   amount: number(),
   category: object(),
+  difficulty: object(),
 });
 
 const { handleSubmit, isSubmitting, meta } = useForm({
   validationSchema: schema,
-  initialValues: { amount: 10 },
+  initialValues: { amount: 10, difficulty: "easy" },
 });
 const { errors: amountErrors, value: amount } = useField("amount", number());
 
@@ -237,10 +245,16 @@ const { errors: categoryErrors, value: category } = useField(
   object()
 );
 
+const { errors: difficultyErrors, value: difficulty } = useField(
+  "difficulty",
+  object()
+);
+
 const getQuestion = async () => {
   const { data } = await api.question.getQuestions({
-    amount: amount.value,
+    amount: amount.value ?? 10,
     category: category.value ? category.value.id : undefined,
+    difficulty: difficulty.value ? difficulty.value.value : "easy",
   });
 
   emit("createdGame", data);

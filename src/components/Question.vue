@@ -1,28 +1,39 @@
 <template>
-  <div>
-    <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4 rounded-t-lg">
+  <div class="relative">
+    <div class="absolute top-2 right-2 text-sm text-gray-600 font-semibold">
+      {{ index + 1 }} / {{ countQuestions }}
+    </div>
+    <div class="bg-white px-4 pt-6 pb-4 rounded-t-lg">
       <div v-if="question" class="space-y-6">
         <div class="space-y-2">
           <h3 class="font-semibold text-lg" v-html="question.question"></h3>
           <p class="text-sm text-gray-600 font-medium">
-            {{ question.category }} • {{ question.difficulty }}
+            {{ question.category }} •
+            {{ translateDifficulty(question.difficulty) }}
           </p>
         </div>
 
         <div class="flex space-x-4">
           <button
-            v-for="(answer, i) in answers"
+            v-for="(answer, i) in question.answers"
             :key="i"
             class="font-semibold text-sm border px-3 py-2 rounded-lg"
-            @click="selectedAnswer = answer"
-            :class="
-              selectedAnswer === answer
+            @click="selectAnswer(answer)"
+            :class="[
+              {
+                'bg-green-600 text-white hover:bg-green-600':
+                  submited && question.correct_answer === answer,
+              },
+              selectedAnswer === answer &&
+              answer !== question.correct_answer &&
+              submited
+                ? 'bg-red-600 text-white'
+                : selectedAnswer === answer
                 ? 'bg-blue-600 text-white'
-                : 'bg-gray-50 hover:bg-gray-100'
-            "
-          >
-            {{ answer }}
-          </button>
+                : 'bg-gray-50 hover:bg-gray-100',
+            ]"
+            v-html="answer"
+          ></button>
         </div>
       </div>
     </div>
@@ -41,7 +52,7 @@
         form="get-questions"
         type="submit"
         :disabled="!selectedAnswer"
-        @click="next"
+        @click="submit"
         class="
           disabled:opacity-50 disabled:hover:bg-blue-600
           w-full
@@ -64,7 +75,8 @@
           sm:ml-3 sm:w-auto sm:text-sm
         "
       >
-        Valider ma réponse
+        <span v-if="submited">Question suivante</span>
+        <span v-else>Valider ma réponse</span>
       </button>
       <button
         type="button"
@@ -96,58 +108,60 @@
 </template>
 
 <script setup>
-import { defineProps, computed, defineEmits, ref } from "vue";
+import { defineEmits, defineProps, ref } from "vue";
 
-const props = defineProps({
+defineProps({
   question: {
     type: Object,
+    required: true,
+  },
+  index: {
+    type: Number,
+    required: true,
+  },
+  countQuestions: {
+    type: Number,
     required: true,
   },
 });
 
 const emit = defineEmits(["next", "close"]);
-
+const submited = ref(false);
 const selectedAnswer = ref("");
+
+const translateDifficulty = (difficulty) => {
+  switch (difficulty) {
+    case "easy":
+      return "Facile";
+    case "medium":
+      return "Moyen";
+    case "hard":
+      return "Extrême";
+  }
+};
+
+const selectAnswer = (answer) => {
+  if (!submited.value) {
+    console.log("okok");
+    selectedAnswer.value = answer;
+  }
+};
+
+const submit = () => {
+  if (submited.value) {
+    next();
+  } else {
+    submited.value = true;
+  }
+};
 
 const next = () => {
   emit("next", selectedAnswer.value);
+  submited.value = false;
   selectedAnswer.value = "";
 };
 
 const close = () => {
   emit("close");
-};
-
-const answers = computed(() => {
-  if (props.question) {
-    const array = shuffle([
-      ...props.question.incorrect_answers,
-      props.question.correct_answer,
-    ]);
-
-    return array;
-  }
-
-  return [];
-});
-
-const shuffle = (array) => {
-  let currentIndex = array.length,
-    randomIndex;
-
-  // While there remain elements to shuffle...
-  while (currentIndex != 0) {
-    // Pick a remaining element...
-    randomIndex = Math.floor(Math.random() * currentIndex);
-    currentIndex--;
-
-    // And swap it with the current element.
-    [array[currentIndex], array[randomIndex]] = [
-      array[randomIndex],
-      array[currentIndex],
-    ];
-  }
-
-  return array;
 };
 </script>

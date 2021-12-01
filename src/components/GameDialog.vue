@@ -69,6 +69,8 @@
             <Question
               v-if="questions.length && !gameEnd"
               :question="questions[activeIndex]"
+              :index="activeIndex"
+              :countQuestions="questions.length"
               @next="next"
               @close="beforeClose"
             />
@@ -133,11 +135,10 @@
 import {
   Dialog,
   DialogOverlay,
-  DialogTitle,
   TransitionChild,
   TransitionRoot,
 } from "@headlessui/vue";
-import { defineComponent, inject, ref, onMounted, defineEmits } from "vue";
+import { defineEmits, inject, ref } from "vue";
 import Question from "./Question.vue";
 
 const props = defineProps({
